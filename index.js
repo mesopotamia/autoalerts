@@ -1,6 +1,7 @@
 var util = require('util');
 var request = require("request");
 var transporter = require('./sendmail');
+var preferences = require('./preferences');
 
 request("https://www.kimonolabs.com/api/3os5fdac?apikey=RO0Clty5y6y46QSia09D1RS3RF4oFnq6&kimlimit=1", 
 function(err, response, body) {
@@ -10,10 +11,12 @@ function(err, response, body) {
 		// console.log(ad);
 		
 		var criteria = [
-			{Model: 'Altima'},
-			{Make: 'Nissan'},
-			{Kilometers: '100000-118707'},
-			{Price: '1000-15000'}
+			{
+				'Model': 'Altima',
+				'Make': 'Nissan',
+				'Kilometers': '100000-118707',
+				'Price': '1000-15000'
+			}
 		];
 
 		var flatAd = flattenObject(ad);
@@ -42,13 +45,13 @@ function(err, response, body) {
 		    text: 'Hello world ✔', // plaintext body
 		    html: output // html body
 			};
-			transporter.sendMail(mailOptions, function(error, info){
+			/*transporter.sendMail(mailOptions, function(error, info){
 			    if(error){
 			        console.log(error);
 			    }else{
 			        console.log('Message sent: ' + info.response);
 			    }
-			});
+			});*/
 			console.log(normalizedAd);	
 		}
 		/*if(index == 0)
@@ -95,20 +98,22 @@ function matchCriteria(adArray, criteria){
 	var completeMatch = true;
 	for(var i=0; i < criteria.length; i++){
 		var criterion = criteria[i];
+		Object.keys(criterion).map(function(key, index){
+			var criterionEntry = {key: criterion[key]};
+			for(var j=0; j < adArray.length; j++){
+				var field = adArray[j];
+				if(matchCriterion(field, criterionEntry)){
+					// console.log('found match');
+					// console.log(field);
+					numOfMatches ++;
 		
-		for(var j=0; j < adArray.length; j++){
-			var field = adArray[j];
-			if(matchCriterion(field, criterion)){
-				// console.log('found match');
-				// console.log(field);
-				numOfMatches ++;
-	
-			}else{
-				// console.log('not found match');
-				// console.log(field);
-			}
+				}else{
+					// console.log('not found match');
+					// console.log(field);
+				}
 
-		}
+			}
+		});
 	}
 	// console.log(numOfMatches);
 	if(numOfMatches >= numOfCriteria){
