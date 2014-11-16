@@ -3,7 +3,7 @@ var request = require("request");
 var transporter = require('./sendmail');
 var preferences = require('./preferences');
 
-request("https://www.kimonolabs.com/api/3os5fdac?apikey=RO0Clty5y6y46QSia09D1RS3RF4oFnq6&kimlimit=1", 
+request("https://www.kimonolabs.com/api/3os5fdac?apikey=RO0Clty5y6y46QSia09D1RS3RF4oFnq6&kimlimit=2500", 
 function(err, response, body) {
 	var collection = JSON.parse(body).results.collection1;
 	var matches = 0;
@@ -16,8 +16,13 @@ function(err, response, body) {
 				'Make': 'Nissan',
 				'Kilometers': '100000-118707',
 				'Price': '1000-15000'
+			},
+			{
+				'Model': 'Q7',
+				'Make': 'Audi'
 			}
 		];
+		// criteria = preferences;
 
 		var flatAd = flattenObject(ad);
 		var normalizedAd = normalizeKeys(flatAd);
@@ -37,7 +42,7 @@ function(err, response, body) {
 				normalizedAd.km,
 				normalizedAd.ad_id
 			);
-			console.log(output);
+			// console.log(output);
 			var mailOptions = {
 		    from: 'Auto Alerts', // sender address
 		    to: 'aziz.marwan@gmail.com', // list of receivers
@@ -54,10 +59,13 @@ function(err, response, body) {
 			});*/
 			console.log(normalizedAd);	
 		}
+		// console.log(normalizedAd);	
+
 		/*if(index == 0)
 			console.log(adArray);
 		*/
 	});
+
 			console.log(matches+" matches found");
 
 });
@@ -83,7 +91,7 @@ function normalizeKeys(flatObject){
 			toReturn['make'] = match[1];
 		}
 		else if(value.search(/ad\sid\s[0-9]+/i) >= 0){
-				console.log('match id');
+				// console.log('match id');
 				toReturn['ad_id'] = value.match(/[0-9]+/i)[0];
 		}
 		else{
@@ -93,13 +101,18 @@ function normalizeKeys(flatObject){
 	return toReturn;
 };
 function matchCriteria(adArray, criteria){
-	var numOfCriteria = criteria.length;
+	// var numOfCriteria = criteria.length;
 	var numOfMatches = 0;
-	var completeMatch = true;
+	var completeMatch = false;
 	for(var i=0; i < criteria.length; i++){
 		var criterion = criteria[i];
+		var numOfCriteria = 0;
+		numOfMatches = 0;
 		Object.keys(criterion).map(function(key, index){
-			var criterionEntry = {key: criterion[key]};
+			var criterionEntry = {};
+			criterionEntry[key] = criterion[key];
+			numOfCriteria ++;
+			// console.log(criterionEntry);
 			for(var j=0; j < adArray.length; j++){
 				var field = adArray[j];
 				if(matchCriterion(field, criterionEntry)){
@@ -114,20 +127,25 @@ function matchCriteria(adArray, criteria){
 
 			}
 		});
+		if(numOfMatches >= numOfCriteria){
+			// console.log('found full match');
+			completeMatch = true;
+			break;
+		}
 	}
 	// console.log(numOfMatches);
-	if(numOfMatches >= numOfCriteria){
-		return numOfMatches;
-	}
-	return false;
+	/*if(completeMatch){
+		return return;
+	}*/
+	return completeMatch;
 }
 function matchCriterion(field, criterion){
 	criterion = getKeyValuePair(criterion);
 	// console.log(criterion);
 	// console.log(field);
 	if(criterion.key == "Kilometers" && field.indexOf("Kilometers") >= 0){
-		console.log("found km");
-		console.log(field);
+		// console.log("found km");
+		// console.log(field);
 		return matchRange(field, criterion.value);
 	}
 	else if(criterion.key === "Price" && field.search(/price\s\$[0-9]+/i) >= 0){
@@ -182,8 +200,8 @@ function iterate(obj, parent, criteria){
 		}
 		else{
 			if(matchCriteria(deepObj, criteria)){
-				console.log(criteria);
-				console.log(parent);
+				// console.log(criteria);
+				// console.log(parent);
 			}else{
 				// console.log('no match');
 			}
