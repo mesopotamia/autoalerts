@@ -1,30 +1,94 @@
+var util = require('util');
 var request = require("request");
+var transporter = require('./sendmail');
 
-request("https://www.kimonolabs.com/api/3os5fdac?apikey=RO0Clty5y6y46QSia09D1RS3RF4oFnq6", 
+request("https://www.kimonolabs.com/api/3os5fdac?apikey=RO0Clty5y6y46QSia09D1RS3RF4oFnq6&kimlimit=1", 
 function(err, response, body) {
 	var collection = JSON.parse(body).results.collection1;
-
+	var matches = 0;
 	collection.forEach(function(ad, index, arr){
 		// console.log(ad);
 		
 		var criteria = [
-			
-			{Make: 'Nissan'}
+			{Model: 'Altima'},
+			{Make: 'Nissan'},
+			{Kilometers: '100000-118707'},
+			{Price: '1000-15000'}
 		];
 
 		var flatAd = flattenObject(ad);
+		var normalizedAd = normalizeKeys(flatAd);
 		var adArray = convertToArray(flatAd);
 
-			// console.log(adArray);
-		if(matchCriteria(adArray, criteria)){
-			// console.log(flatAd);
-			console.log(adArray);
+		// console.log(adArray);
+		var match = matchCriteria(adArray, criteria);
+		if(match){
+			// console.log(match+" matches found");
+			matches ++;
+			console.log(flatAd.ad_id);
+			var body = '<h1>%s %s</h1><p>Kilometers: %s</p><p>Price: $%s</p><a href=\'http://www.kijiji.ca/b-search.html?locationId=1700214&categoryId=&formSubmit=true&urgentOnly=false&highlightOnly=false&gpTopAd=false&hpGallery=false&minPrice=&maxPrice=&adType=&adPriceType=&sortByName=dateDesc&keywords=%s\'>View Ad</a>';
+			var output = util.format(body, 
+				normalizedAd.make,
+				normalizedAd.model,
+				normalizedAd.price,
+				normalizedAd.km,
+				normalizedAd.ad_id
+			);
+			console.log(output);
+			var mailOptions = {
+		    from: 'Auto Alerts', // sender address
+		    to: 'aziz.marwan@gmail.com', // list of receivers
+		    subject: 'Deals that may be of interest to you', // Subject line
+		    text: 'Hello world ✔', // plaintext body
+		    html: output // html body
+			};
+			transporter.sendMail(mailOptions, function(error, info){
+			    if(error){
+			        console.log(error);
+			    }else{
+			        console.log('Message sent: ' + info.response);
+			    }
+			});
+			console.log(normalizedAd);	
 		}
 		/*if(index == 0)
 			console.log(adArray);
 		*/
 	});
+			console.log(matches+" matches found");
 
+});
+function normalizeKeys(flatObject){
+	var toReturn = {};
+	Object.keys(flatObject).map(function(key, index){
+		var value = flatObject[key];
+		if(value.indexOf("Kilometers") >= 0){
+
+			toReturn['km'] = value.match(/[0-9]+/i)[0];
+		}
+		else if(value.search(/price\s\$[0-9]+/i) >= 0){
+			toReturn['price'] = value.replace(",","").match(/[0-9]+/i).toString();;
+		}
+		else if(value.search(/Model\s/i) >= 0){
+			value = value.replace("\n", "");
+			var match = value.split("Model");
+			toReturn['model'] = match[1];
+		}
+		else if(value.search(/Make\s/i) >= 0){
+			value = value.replace("\n", "");
+			var match = value.split("Make");
+			toReturn['make'] = match[1];
+		}
+		else if(value.search(/ad\sid\s[0-9]+/i) >= 0){
+				console.log('match id');
+				toReturn['ad_id'] = value.match(/[0-9]+/i)[0];
+		}
+		else{
+			toReturn[key] = value;
+		}
+	});
+	return toReturn;
+};
 function matchCriteria(adArray, criteria){
 	var numOfCriteria = criteria.length;
 	var numOfMatches = 0;
@@ -48,7 +112,7 @@ function matchCriteria(adArray, criteria){
 	}
 	// console.log(numOfMatches);
 	if(numOfMatches >= numOfCriteria){
-		return true;
+		return numOfMatches;
 	}
 	return false;
 }
@@ -56,14 +120,35 @@ function matchCriterion(field, criterion){
 	criterion = getKeyValuePair(criterion);
 	// console.log(criterion);
 	// console.log(field);
-	if(field.indexOf(criterion.key) >= 0 && field.indexOf(criterion.value) >= 0){
+	if(criterion.key == "Kilometers" && field.indexOf("Kilometers") >= 0){
+		console.log("found km");
+		console.log(field);
+		return matchRange(field, criterion.value);
+	}
+	else if(criterion.key === "Price" && field.search(/price\s\$[0-9]+/i) >= 0){
+		
+		var price = field.replace(",","").match(/[0-9]+/i).toString();
+		return matchRange(price, criterion.value);
+		
+	}
+	else if(field.indexOf(criterion.key) >= 0 && field.indexOf(criterion.value) >= 0){
 		// console.log(field);
 		return true;
 	}
 	return false;
 }
-  
-});
+function matchRange(field, rangeStr)  {
+	var rangeArray = rangeStr.split("-");
+	var from = parseFloat(rangeArray[0]);
+	var to = parseFloat(rangeArray[1]);
+	var digits = parseFloat(field.match(/[0-9]+/i));
+	if(digits >= from && digits <= to){
+		return true;
+	}
+	return false;
+
+
+}
 var flattenObject = function(ob) {
 	var toReturn = {};
 	
