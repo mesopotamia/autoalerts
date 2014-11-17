@@ -12,17 +12,17 @@ function(err, response, body) {
 		
 		var criteria = [
 			{
-				'Model': 'Altima',
-				'Make': 'Nissan',
-				'Kilometers': '100000-118707',
-				'Price': '1000-15000'
+				'model': 'Altima',
+				'make': 'Nissan',
+				'kilometers': '100000-118707',
+				'price': '1000-15000'
 			},
 			{
-				'Model': 'Q7',
-				'Make': 'Audi'
+				'model': 'Q7',
+				'make': 'Audi'
 			}
 		];
-		// criteria = preferences;
+		criteria = preferences;
 
 		var flatAd = flattenObject(ad);
 		var normalizedAd = normalizeKeys(flatAd);
@@ -50,13 +50,13 @@ function(err, response, body) {
 		    text: 'Hello world ✔', // plaintext body
 		    html: output // html body
 			};
-			/*transporter.sendMail(mailOptions, function(error, info){
+			transporter.sendMail(mailOptions, function(error, info){
 			    if(error){
 			        console.log(error);
 			    }else{
 			        console.log('Message sent: ' + info.response);
 			    }
-			});*/
+			});
 			console.log(normalizedAd);	
 		}
 		// console.log(normalizedAd);	
@@ -80,12 +80,12 @@ function normalizeKeys(flatObject){
 		else if(value.search(/price\s\$[0-9]+/i) >= 0){
 			toReturn['price'] = value.replace(",","").match(/[0-9]+/i).toString();;
 		}
-		else if(value.search(/Model\s/i) >= 0){
+		else if(value.search(/model\s/i) >= 0){
 			value = value.replace("\n", "");
 			var match = value.split("Model");
 			toReturn['model'] = match[1];
 		}
-		else if(value.search(/Make\s/i) >= 0){
+		else if(value.search(/make\s/i) >= 0){
 			value = value.replace("\n", "");
 			var match = value.split("Make");
 			toReturn['make'] = match[1];
@@ -143,20 +143,27 @@ function matchCriterion(field, criterion){
 	criterion = getKeyValuePair(criterion);
 	// console.log(criterion);
 	// console.log(field);
-	if(criterion.key == "Kilometers" && field.indexOf("Kilometers") >= 0){
+	if(criterion.key == "kilometers" && field.indexOf("Kilometers") >= 0){
 		// console.log("found km");
 		// console.log(field);
 		return matchRange(field, criterion.value);
 	}
-	else if(criterion.key === "Price" && field.search(/price\s\$[0-9]+/i) >= 0){
+	else if(criterion.key === "price" && field.search(/price\s\$[0-9]+/i) >= 0){
 		
 		var price = field.replace(",","").match(/[0-9]+/i).toString();
 		return matchRange(price, criterion.value);
 		
 	}
-	else if(field.indexOf(criterion.key) >= 0 && field.indexOf(criterion.value) >= 0){
+	// model
+	else if(field.search(/model\s/i) >= 0 && field.indexOf(criterion.value) >= 0){
 		// console.log(field);
+		return true
+	}
+	else if(field.search(/make\s/i) >= 0 && field.indexOf(criterion.value) >= 0){
 		return true;
+	}
+	else{
+		// console.log(field);
 	}
 	return false;
 }

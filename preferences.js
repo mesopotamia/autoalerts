@@ -22,7 +22,7 @@ var preferences = [
 	},
 	{
 	    
-	    "make": "GMC",
+	    "make": "Chevrolet",
 	    "model": "Silverado",
 	    "kilometers": "100000-225000",
 	    "price": ""
@@ -40,10 +40,6 @@ var preferences = [
 	    "model": "Altima",
 	    "kilometers": "100000-225000",
 	    "price": "1000-15000"
-	},
-	{
-		"make": "Audi",
-		"model": "Q7"
 	}
 ];
 
