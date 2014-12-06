@@ -1,8 +1,20 @@
 var preferences = [
 	{
+		'model': 'A6',
+    	'make': 'Audi',
+    	'price': '10000-20000',
+    	'kilometers': '100000-200000'
+	},
+	{
+		'model': 'Elantra',
+		'make': 'Hyundai',
+		'price': '5000-10000',
+		'kilometers': '50000-100000'
+	},
+	{
 	    
 	    "make": "GMC",
-	    "model": "1500",
+	    "model": "Sierra 1500",
 	    "kilometers": "120000-220000",
 	    "price": "5000-12000"
 	},
@@ -41,6 +53,7 @@ var preferences = [
 	    "kilometers": "100000-225000",
 	    "price": "1000-15000"
 	}
+	
 ];
 
 module.exports = preferences;

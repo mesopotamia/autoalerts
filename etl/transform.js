@@ -3,7 +3,7 @@ var _ = require('lodash');
 // var traverse = require('traverse');
 var dbLoader = require('./load');
 var index = 0,
-collection = [];
+collection = [], added = 0;
 
 dbLoader.start();
 
@@ -14,11 +14,20 @@ extract.getData().then(function(response){
 
 function transformNext(){
 	var ad = collection[index];
-	console.log(ad);
 	var mapped = traverse(ad, normalize);
+	// console.log(mapped.ad_id);
 	dbLoader.addRecord(mapped, function(success){
 		index ++;
-		transformNext();
+		if(index < collection.length){
+			if(success){
+				added ++;
+			}
+			transformNext();
+		}
+		else{
+			console.log('%d ads added', added);
+			process.exit(1);
+		}
 	})
 }
  // .catch(console.log);
@@ -38,6 +47,10 @@ function normalize(key, value){
 
 		var match = value.match(/make\s(.*)/i);
 		return ["make", match[1]];
+	}
+	else if(value.search(/^year\s/i) >= 0){
+		var match = value.match(/^year\s(.*)/i);
+		return ["year", match[1]];
 	}
 	else if(value.search(/ad\sid\s[0-9]+/i) >= 0){
 		// console.log('match id');

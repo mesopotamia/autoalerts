@@ -16,9 +16,7 @@ function start(callback){
 function addRecord(record, callback){
 	_db.collection('transformed_ads').findOne({ad_id: record.ad_id}, {w:1}, function(err, document) {
   		if(document){
-  			console.log('already found an ad with id, you update');
 			callback(false);
-
   		}
   		else{
 			_db.collection('transformed_ads').insert(record, {w:1}, function(err, objects){
