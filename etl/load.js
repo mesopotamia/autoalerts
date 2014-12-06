@@ -13,13 +13,13 @@ function start(callback){
 			callback.call();
 	});
 };
-function addRecord(record, callback){
-	_db.collection('transformed_ads').findOne({ad_id: record.ad_id}, {w:1}, function(err, document) {
+function addRecord(collection, record, callback){
+	_db.collection(collection).findOne({ad_id: record.ad_id}, {w:1}, function(err, document) {
   		if(document){
 			callback(false);
   		}
   		else{
-			_db.collection('transformed_ads').insert(record, {w:1}, function(err, objects){
+			_db.collection(collection).insert(record, {w:1}, function(err, objects){
 				if(err) console.warn(err.message);
   				callback(true);
 			});

@@ -16,7 +16,7 @@ function transformNext(){
 	var ad = collection[index];
 	var mapped = traverse(ad, normalize);
 	// console.log(mapped.ad_id);
-	dbLoader.addRecord(mapped, function(success){
+	dbLoader.addRecord('transformed_ads', mapped, function(success){
 		index ++;
 		if(index < collection.length){
 			if(success){
