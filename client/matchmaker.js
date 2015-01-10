@@ -89,7 +89,7 @@ function emailMatch(normalizedAd){
 			);
 	var mailOptions = {
 	    from: 'Auto Alerts', // sender address
-	    to: 'shea.salar@gmail.com', // list of receivers
+	    to: 'aziz.marwan@gmail.com', // list of receivers
 	    subject: 'Deals that may be of interest to you', // Subject line
 	    text: 'Hello world ✔', // plaintext body
 	    html: output // html body
