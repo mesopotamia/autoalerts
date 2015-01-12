@@ -1,16 +1,17 @@
 var extract = require('./extract');
-var _ = require('lodash');
-// var traverse = require('traverse');
 var dbLoader = require('./load');
+var _ = require('lodash');
+
 var index = 0,
-collection = [], added = 0;
+	collection = [],
+	added = 0;
 
-dbLoader.start();
-
-extract.getData().then(function(response){
-	collection = JSON.parse(response).results.collection1;
+function start(coll){
+	collection = coll;
+	// console.log(collection);
 	transformNext();
-});
+};
+
 
 function transformNext(){
 	var ad = collection[index];
@@ -79,3 +80,4 @@ function traverse(o,func) {
     }
     return toReturn;
 };
+exports.start = start;
