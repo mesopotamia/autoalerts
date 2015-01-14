@@ -13,7 +13,8 @@ function start(coll){
 };
 
 function transformNext(){
-	var ad = collection[index];
+	var ad = normalize(collection[index]);
+
 	// console.log(mapped.ad_id);
 	dbLoader.addRecord('transformed_ads', ad, function(success){
 		index ++;
@@ -29,7 +30,40 @@ function transformNext(){
 		}
 	});
 };
- // .catch(console.log);
+function normalize(ad){
+
+	var newAd = {}, 
+		titleBreakdown = {};
+
+	newAd.model = ad.model;
+	newAd.make = ad.make;
+	newAd.kilometers = normalizeKM(ad.km);
+
+	titleBreakdown = extractFromTitle(ad.title);
+	newAd.price = titleBreakdown.price;
+	newAd.year = titleBreakdown.year;
+
+	return newAd;
+
+}
+
+function normalizeKM(kmStr){
+
+	var normalized = kmStr.replace(',''');
+
+	return kmStr.match(/[0-9]+/)[0];
+
+};
+function extractFromTitle(title){
+	var price,
+		year;
+
+	price = title.match(/\$[0-9]+/)[0];
+	year = title.match(/^(19[5-9]\d|20[0-4]\d|2050)$/)[0];
+
+	return {price: price, year: year};
+
+};
 function normalize(key, value){
 	
 	if(value.search(/kilometers/i) >= 0){
