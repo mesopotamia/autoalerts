@@ -1,5 +1,6 @@
 var dbLoader = require('../etl/load');
 var preferences = require('../preferences');
+var profiles = require('./profiles.json').profiles;
 // var transporter = require('./sendmail');
 var nodemailer = require('nodemailer');
 var util = require('util');
@@ -15,42 +16,52 @@ var transporter = nodemailer.createTransport({
 
 
 var ads, index = 0;
-
 dbLoader.start(function(){
 	
-	dbLoader.getRecordsArray(function(_ads){
-		ads = _ads;
-		getNext();
-		// console.log(ads);
-	});
+	var iterator = dbLoader.getAllRecords();
+	function iterate(){
+		iterator.nextObject(function(err, item){
+			if (err){
+				console.log(arguments);
+			}
+			else if(item){
+				// console.log(item);
+				process.call(null, item, iterate);
+			}
+			else{
+				console.log('reached end');
+			}
+		});
+	};
+	iterate();
 
 });
-function getNext(){
-	var ad = ads[index];
-	for(var j=0; j < preferences.length; j++){
-		var pref = preferences[j];
-		if(isMatch(ad, pref)){
-			dbLoader.addRecord('sent_ads', ad, function(success){
-				if(success){
-					emailMatch(ad);
-					console.log('sending ad');
-					console.log(ad);
-				}
-				else{
-					console.log('not sending ad %d', ad.ad_id);
-				}
-			})
+function process(ad, callback){
+	for(var j=0, len = profiles.length; j < len; j++){
+		var profile = profiles[j];
+		var prefs = profile.preferences;
+		for(var z=0, prefLen = prefs.length; z < prefLen; z++){
+			var pref = prefs[z];
+			// console.log(pref);
+			if(isMatch(ad, pref)){
+				// console.log(ad);
+				var record = ad;
+				// record.profileName = profile.name;
+				dbLoader.addRecord('sent_ads', record, function(success){
+					if(success){
+						console.log('sending ad');
+						console.log(record);
+					}
+					else{
+						console.log('not sending ad %d', record.ad_id);
+					}
+				});
+				
+			}
 			
-			break;
 		}
 	}
-	index ++;
-	if(index < ads.length){
-		getNext();
-	}else{
-		// process.exit(1);
-	}
-	
+	callback();
 };
 function isMatch(ad, pref){
 	for(var key in pref){

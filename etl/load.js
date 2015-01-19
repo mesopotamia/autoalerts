@@ -41,6 +41,7 @@ function getRecordsArray(callback){
 module.exports = {
 	start: start,
 	addRecord: addRecord,
-	getRecordsArray: getRecordsArray
+	getRecordsArray: getRecordsArray,
+	getAllRecords: getAllRecords
 };
 
