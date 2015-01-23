@@ -27,7 +27,8 @@ function transformNext(){
 		}
 		else{
 			console.log('%d ads added', added);
-			process.exit(1);
+			console.log(new Date());
+			// process.exit(1);
 		}
 	})
 }

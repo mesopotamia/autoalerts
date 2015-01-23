@@ -44,13 +44,14 @@ function process(ad, callback){
 			var pref = prefs[z];
 			// console.log(pref);
 			if(isMatch(ad, pref)){
-				// console.log(ad);
+				console.log("Found match for "+profile.name);
+				console.log(ad);
 				var record = ad;
 				// record.profileName = profile.name;
 				dbLoader.addRecord('sent_ads', record, function(success){
 					if(success){
 						console.log('sending ad');
-						console.log(record);
+						// console.log(record);
 					}
 					else{
 						console.log('not sending ad %d', record.ad_id);
@@ -80,6 +81,8 @@ function isCompareable(ad, pref, key){
 	}
 }
 function matchRange(field, rangeStr)  {
+	field = field || "";
+	// console.log("Field: "+field);
 	var rangeArray = rangeStr.split("-");
 	var from = parseFloat(rangeArray[0]);
 	var to = parseFloat(rangeArray[1]);

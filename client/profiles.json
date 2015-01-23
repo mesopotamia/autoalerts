@@ -58,6 +58,13 @@
 				    "model": "Altima",
 				    "kilometers": "100000-225000",
 				    "price": "1000-15000"
+				},
+				{
+				    
+				    "make": "Kia",
+				    "model": "Rio",
+				    "kilometers": "100000-225000",
+				    "price": "1000-15000"
 				}
 			]
 		}

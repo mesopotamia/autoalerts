@@ -26,7 +26,7 @@ function transformNext(){
 		}
 		else{
 			console.log('%d ads added', added);
-			process.exit(1);
+			// process.exit(1);
 		}
 	});
 };
