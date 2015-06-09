@@ -2,7 +2,7 @@
   "name": "alert",
   "version": "0.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "client/matchmaker.js",
   "dependencies": {
     "mongodb": "^1.4.28"
   },
